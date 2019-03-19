@@ -1,0 +1,35 @@
+task:
+  container:
+    image: cirrusci/flutter:latest
+  name: Tests (Unit)
+  pub_cache:
+    folder: ~/.pub-cache
+  tests_script: ./scripts/runTests.sh
+  
+task:
+  env:
+    EMULATOR_API_LEVEL: 22
+    ANDROID_ABI: "default;armeabi-v7a"
+    SHARD: bloc_flutter
+  
+  matrix:
+    - name: Integration Tests for $SHARD (Linux)
+      container:
+        image: cirrusci/flutter:latest
+    - name: Integration Tests for $SHARD (macOS)
+      osx_instance:
+        image: mojave-flutter
+  skip: '!changesInclude(".cirrus.yml", "$SHARD/*", "$SHARD/**/*")'
+  create_device_script:
+    echo no | avdmanager create avd --force
+        -n test
+        -k "system-images;android-$EMULATOR_API_LEVEL;$ANDROID_ABI"
+  start_emulator_background_script:
+    $ANDROID_HOME/emulator/emulator
+        -avd test
+        -no-audio
+        -no-window
+        -gpu swiftshader
+  pub_cache:
+    folder: ~/.pub-cache
+  ci_script: ./scripts/ci.sh ./$SHARD
