@@ -20,6 +20,7 @@ task:
       osx_instance:
         image: mojave-flutter
   skip: '!changesInclude(".cirrus.yml", "$SHARD/*", "$SHARD/**/*")'
+  install_images_script: sdkmanager "system-images;android-$EMULATOR_API_LEVEL;$ANDROID_ABI"
   create_device_script:
     echo no | avdmanager create avd --force
         -n test
@@ -32,4 +33,7 @@ task:
         -gpu swiftshader
   pub_cache:
     folder: ~/.pub-cache
+  wait_for_emulator_script:
+    - adb wait-for-device
+    - adb shell input keyevent 82
   ci_script: ./scripts/ci.sh ./$SHARD
