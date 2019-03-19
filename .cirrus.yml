@@ -1,6 +1,8 @@
 task:
   container:
     image: cirrusci/flutter:latest
+    cpu: 4
+    memory: 12G
   name: Tests (Unit)
   pub_cache:
     folder: ~/.pub-cache
@@ -16,6 +18,8 @@ task:
     - name: Integration Tests for $SHARD (Linux)
       container:
         image: cirrusci/flutter:latest
+        cpu: 4
+        memory: 12G
     - name: Integration Tests for $SHARD (macOS)
       osx_instance:
         image: mojave-flutter
