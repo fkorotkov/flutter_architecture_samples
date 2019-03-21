@@ -1,0 +1,38 @@
+timeout_in: 30m
+
+task:
+  container:
+    image: cirrusci/flutter:latest
+  name: Tests (Unit)
+  pub_cache:
+    folder: ~/.pub-cache
+  activate_coverage_script: pub global activate coverage
+  tests_script: ./scripts/runTests.sh
+
+task:
+  env:
+    EMULATOR_API_LEVEL: 22
+    ANDROID_ABI: "default;armeabi-v7a"
+    SHARD: bloc_flutter
+
+  matrix:
+    - name: Integration Tests for $SHARD (Linux)
+      container:
+        image: cirrusci/flutter:latest
+    - name: Integration Tests for $SHARD (macOS)
+      osx_instance:
+        image: mojave-flutter
+  skip: '!changesInclude(".cirrus.yml", "$SHARD/*", "$SHARD/**/*")'
+  install_images_script: sdkmanager "system-images;android-$EMULATOR_API_LEVEL;$ANDROID_ABI"
+  create_device_script:
+    echo no | avdmanager create avd --force -n test -k "system-images;android-$EMULATOR_API_LEVEL;$ANDROID_ABI"
+  start_emulator_background_script:
+    $ANDROID_HOME/emulator/emulator -avd test -no-audio -no-window
+  pub_cache:
+    folder: ~/.pub-cache
+  wait_for_emulator_script:
+    - adb wait-for-device
+    - adb shell input keyevent 82
+  doctor_script: flutter doctor
+  devices_script: flutter devices
+  ci_script: ./scripts/ci.sh ./$SHARD
