@@ -1,4 +1,4 @@
-# vanilla example
+# vanilla example test
 
 The vanilla example uses only the core Widgets and Classes that Flutter provides out of the box to manage state. The most important of these: the `StatefulWidget`.
 
